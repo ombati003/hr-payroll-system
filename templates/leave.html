@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-8">
+    <div>
+        <h3 class="text-2xl font-bold">Leave Management</h3>
+        <p class="text-slate-500">Track and approve time-off requests.</p>
+    </div>
+    <button onclick="openRequestLeaveModal()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors">
+        <i class="fa-solid fa-plus mr-2"></i> Request Leave
+    </button>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Pending Requests List -->
+    <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+            <h4 class="font-bold">Pending Requests</h4>
+            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full text-xs font-bold" id="pending-count">0</span>
+        </div>
+        <div id="pending-leaves-list" class="divide-y divide-slate-100">
+            <!-- Loaded via JS -->
+            <div class="p-12 text-center text-slate-400">Loading requests...</div>
+        </div>
+    </div>
+
+    <!-- Leave Rules & Info -->
+    <div class="space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <h4 class="font-bold mb-4">Leave Rules</h4>
+            <ul class="space-y-4 text-sm">
+                <li class="flex gap-3">
+                    <i class="fa-solid fa-circle-info text-blue-500 mt-1"></i>
+                    <div>
+                        <p class="font-bold">Notice Period</p>
+                        <p class="text-slate-500">Annual leave requires at least 7 days advance notice.</p>
+                    </div>
+                </li>
+                <li class="flex gap-3">
+                    <i class="fa-solid fa-users-slash text-orange-500 mt-1"></i>
+                    <div>
+                        <p class="font-bold">Team Coverage</p>
+                        <p class="text-slate-500">At least 50% of the team must be present at all times.</p>
+                    </div>
+                </li>
+                <li class="flex gap-3">
+                    <i class="fa-solid fa-money-bill-transfer text-green-500 mt-1"></i>
+                    <div>
+                        <p class="font-bold">Payroll Impact</p>
+                        <p class="text-slate-500">Unpaid leave will be pro-rated and deducted from the monthly payslip.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for requesting leave -->
+<div id="request-leave-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl w-full max-w-md p-8">
+        <h3 class="text-2xl font-bold mb-6">Request Time Off</h3>
+        <form id="request-leave-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-bold mb-2">Employee</label>
+                <select name="employee_id" id="leave-employee-select" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"></select>
+            </div>
+            <div>
+                <label class="block text-sm font-bold mb-2">Leave Type</label>
+                <select name="leave_type" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="Annual">Annual Leave</option>
+                    <option value="Sick">Sick Leave</option>
+                    <option value="Unpaid">Unpaid Leave</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-bold mb-2">Start Date</label>
+                    <input type="date" name="start_date" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-2">End Date</label>
+                    <input type="date" name="end_date" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-bold mb-2">Reason</label>
+                <textarea name="reason" rows="3" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+            <div id="leave-error" class="text-red-500 text-sm hidden"></div>
+            <div class="flex justify-end gap-4 mt-6">
+                <button type="button" onclick="closeRequestLeaveModal()" class="px-6 py-2 text-slate-500 font-bold">Cancel</button>
+                <button type="submit" class="bg-blue-600 text-white px-8 py-2 rounded-lg font-bold hover:bg-blue-700">Submit Request</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function loadLeaves() {
+        fetch('/api/leave/?status=Pending')
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById('pending-leaves-list');
+                document.getElementById('pending-count').textContent = data.length;
+                
+                if (data.length === 0) {
+                    list.innerHTML = '<div class="p-12 text-center text-slate-400">No pending requests</div>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                data.forEach(leave => {
+                    const item = `
+                        <div class="p-6 flex justify-between items-center">
+                            <div class="flex gap-4">
+                                <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center font-bold text-slate-500">${leave.employee_name.substring(0,2).toUpperCase()}</div>
+                                <div>
+                                    <p class="font-bold">${leave.employee_name}</p>
+                                    <p class="text-xs text-slate-400">${leave.leave_type} • ${leave.start_date} to ${leave.end_date}</p>
+                                    <p class="text-sm mt-1 italic">"${leave.reason || 'No reason provided'}"</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="handleLeave(${leave.id}, 'reject')" class="px-4 py-2 text-red-600 font-bold hover:bg-red-50 rounded-lg transition-colors">Reject</button>
+                                <button onclick="handleLeave(${leave.id}, 'approve')" class="px-4 py-2 bg-green-600 text-white font-bold hover:bg-green-700 rounded-lg transition-colors">Approve</button>
+                            </div>
+                        </div>
+                    `;
+                    list.innerHTML += item;
+                });
+            });
+    }
+
+    function handleLeave(id, action) {
+        fetch(\`/api/leave/\${id}/\${action}\`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({approved_by: 1}) // Hardcoded for demo
+        }).then(res => {
+            if (res.ok) loadLeaves();
+        });
+    }
+
+    function loadEmployeesForLeave() {
+        fetch('/api/employees/')
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('leave-employee-select');
+                select.innerHTML = '';
+                data.forEach(emp => {
+                    select.innerHTML += `<option value="${emp.id}">${emp.name}</option>`;
+                });
+            });
+    }
+
+    function openRequestLeaveModal() {
+        document.getElementById('request-leave-modal').classList.remove('hidden');
+        document.getElementById('request-leave-modal').classList.add('flex');
+        document.getElementById('leave-error').classList.add('hidden');
+    }
+
+    function closeRequestLeaveModal() {
+        document.getElementById('request-leave-modal').classList.add('hidden');
+        document.getElementById('request-leave-modal').classList.remove('flex');
+    }
+
+    document.getElementById('request-leave-form').onsubmit = (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.from_ホームページ(formData.entries());
+        
+        fetch('/api/leave/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        }).then(async res => {
+            if (res.ok) {
+                closeRequestLeaveModal();
+                loadLeaves();
+                e.target.reset();
+            } else {
+                const error = await res.json();
+                const errorDiv = document.getElementById('leave-error');
+                errorDiv.textContent = error.error;
+                errorDiv.classList.remove('hidden');
+            }
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadLeaves();
+        loadEmployeesForLeave();
+    });
+</script>
+{% endblock %}

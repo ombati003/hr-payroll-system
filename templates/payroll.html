@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-8">
+    <div>
+        <h3 class="text-2xl font-bold">Payroll Management</h3>
+        <p class="text-slate-500">Generate and review monthly payroll records.</p>
+    </div>
+    <div class="flex gap-4">
+        <div class="flex items-center gap-2 bg-white border rounded-xl px-4">
+            <label class="text-xs font-bold text-slate-400 uppercase">Period:</label>
+            <select id="payroll-month" class="border-none focus:ring-0 text-sm font-bold">
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7" selected>July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+            <select id="payroll-year" class="border-none focus:ring-0 text-sm font-bold">
+                <option value="2026" selected>2026</option>
+                <option value="2025">2025</option>
+            </select>
+        </div>
+        <button onclick="generatePayroll()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors">
+            Generate Payroll
+        </button>
+    </div>
+</div>
+
+<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <table class="w-full text-left">
+        <thead class="bg-slate-50 border-b border-slate-100">
+            <tr>
+                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Employee</th>
+                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Gross Pay</th>
+                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Deductions</th>
+                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Net Pay</th>
+                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Status</th>
+                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="payroll-table-body" class="divide-y divide-slate-100">
+            <!-- Loaded via JS -->
+            <tr>
+                <td colspan="6" class="p-12 text-center text-slate-400">Select a period and generate or load history</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Simple Payslip Modal -->
+<div id="payslip-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl w-full max-w-2xl p-8" id="payslip-content">
+        <!-- Loaded via JS -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function loadPayroll() {
+        fetch('/api/payroll/')
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById('payroll-table-body');
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="p-12 text-center text-slate-400">No records found</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = '';
+                data.forEach(record => {
+                    const deductions = record.tax_deduction + record.social_security_deduction + record.unpaid_leave_deduction;
+                    const row = `
+                        <tr>
+                            <td class="px-6 py-4 font-bold">\${record.employee_name}</td>
+                            <td class="px-6 py-4 text-sm">$\${record.gross_pay.toLocaleString()}</td>
+                            <td class="px-6 py-4 text-sm text-red-500">-$\${deductions.toLocaleString()}</td>
+                            <td class="px-6 py-4 text-sm font-bold text-green-600">$\${record.net_pay.toLocaleString()}</td>
+                            <td class="px-6 py-4">
+                                <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase \${record.status === 'Finalized' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}">
+                                    \${record.status}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <button onclick="viewPayslip(\${record.id})" class="text-blue-600 hover:underline text-sm font-bold mr-4">View Payslip</button>
+                                \${record.status === 'Draft' ? \`<button onclick="finalizePayroll(\${record.id})" class="bg-slate-900 text-white px-3 py-1 rounded text-xs">Finalize</button>\` : ''}
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            });
+    }
+
+    function generatePayroll() {
+        const month = document.getElementById('payroll-month').value;
+        const year = document.getElementById('payroll-year').value;
+        
+        fetch('/api/payroll/generate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({month: parseInt(month), year: parseInt(year)})
+        }).then(res => res.json())
+          .then(data => {
+              alert(data.message);
+              loadPayroll();
+          });
+    }
+
+    function finalizePayroll(id) {
+        fetch(\`/api/payroll/\${id}/finalize\`, {method: 'POST'})
+            .then(res => {
+                if (res.ok) loadPayroll();
+            });
+    }
+
+    function viewPayslip(id) {
+        fetch(\`/api/payroll/\${id}\`)
+            .then(res => res.json())
+            .then(record => {
+                const modal = document.getElementById('payslip-modal');
+                const content = document.getElementById('payslip-content');
+                
+                content.innerHTML = \`
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <h2 class="text-3xl font-bold">PAYSLIP</h2>
+                            <p class="text-slate-400">Period: \${record.period_start} to \${record.period_end}</p>
+                        </div>
+                        <div class="text-right">
+                            <h4 class="font-bold">AcmeCorp HR</h4>
+                            <p class="text-sm text-slate-500">123 Business Ave, Tech City</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-8 mb-8 p-6 bg-slate-50 rounded-xl">
+                        <div>
+                            <p class="text-xs text-slate-400 uppercase font-bold">Employee</p>
+                            <p class="font-bold text-lg">\${record.employee_name}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-slate-400 uppercase font-bold">Payslip ID</p>
+                            <p class="font-bold">#PS-\${record.id.toString().padStart(5, '0')}</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 mb-8">
+                        <div class="flex justify-between border-b pb-2">
+                            <span>Basic Salary (Gross)</span>
+                            <span class="font-bold">$\${record.gross_pay.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between text-red-500">
+                            <span>Tax Deduction</span>
+                            <span>-$\${record.tax_deduction.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between text-red-500">
+                            <span>Social Security</span>
+                            <span>-$\${record.social_security_deduction.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between text-red-500">
+                            <span>Unpaid Leave Deduction</span>
+                            <span>-$\${record.unpaid_leave_deduction.toLocaleString()}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center p-6 bg-blue-600 text-white rounded-xl">
+                        <span class="text-xl font-bold">NET PAY</span>
+                        <span class="text-3xl font-bold">$\${record.net_pay.toLocaleString()}</span>
+                    </div>
+
+                    <div class="mt-8 flex justify-end gap-4">
+                        <button onclick="closePayslip()" class="px-6 py-2 text-slate-500 font-bold">Close</button>
+                        <button onclick="window.print()" class="bg-slate-900 text-white px-6 py-2 rounded-lg font-bold">Print</button>
+                    </div>
+                \`;
+                
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            });
+    }
+
+    function closePayslip() {
+        document.getElementById('payslip-modal').classList.add('hidden');
+        document.getElementById('payslip-modal').classList.remove('flex');
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPayroll);
+</script>
+{% endblock %}

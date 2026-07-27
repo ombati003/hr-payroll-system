@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- Stat Card 1 -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex justify-between items-start mb-4">
+            <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                <i class="fa-solid fa-users text-xl"></i>
+            </div>
+            <div class="text-green-500 text-xs font-bold bg-green-50 px-2 py-1 rounded-lg">
+                <i class="fa-solid fa-arrow-up"></i> +2
+            </div>
+        </div>
+        <h3 class="text-4xl font-bold mb-1" id="stat-total-employees">0</h3>
+        <p class="text-slate-500 text-sm">Total Employees</p>
+    </div>
+
+    <!-- Stat Card 2 -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex justify-between items-start mb-4">
+            <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600">
+                <i class="fa-solid fa-user-clock text-xl"></i>
+            </div>
+            <div class="text-slate-400 text-xs font-bold bg-slate-50 px-2 py-1 rounded-lg">0</div>
+        </div>
+        <h3 class="text-4xl font-bold mb-1" id="stat-on-leave">0</h3>
+        <p class="text-slate-500 text-sm">On Leave Today</p>
+    </div>
+
+    <!-- Stat Card 3 -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex justify-between items-start mb-4">
+            <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600">
+                <i class="fa-solid fa-clock text-xl"></i>
+            </div>
+            <div class="text-green-500 text-xs font-bold bg-green-50 px-2 py-1 rounded-lg">
+                <i class="fa-solid fa-arrow-up"></i> +1
+            </div>
+        </div>
+        <h3 class="text-4xl font-bold mb-1" id="stat-pending-requests">0</h3>
+        <p class="text-slate-500 text-sm">Pending Requests</p>
+    </div>
+
+    <!-- Stat Card 4 -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex justify-between items-start mb-4">
+            <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
+                <i class="fa-solid fa-dollar-sign text-xl"></i>
+            </div>
+            <div class="text-green-500 text-xs font-bold bg-green-50 px-2 py-1 rounded-lg">
+                <i class="fa-solid fa-arrow-up"></i> +5.5%
+            </div>
+        </div>
+        <h3 class="text-4xl font-bold mb-1" id="stat-monthly-payroll">$0</h3>
+        <p class="text-slate-500 text-sm">Payroll This Month</p>
+    </div>
+
+    <!-- Stat Card 5 -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex justify-between items-start mb-4">
+            <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                <i class="fa-solid fa-chart-line text-xl"></i>
+            </div>
+            <div class="text-blue-500 text-xs font-bold bg-blue-50 px-2 py-1 rounded-lg">
+                <i class="fa-solid fa-arrow-up"></i> +3.2%
+            </div>
+        </div>
+        <h3 class="text-4xl font-bold mb-1" id="stat-avg-salary">$0</h3>
+        <p class="text-slate-500 text-sm">Avg. Salary</p>
+    </div>
+
+    <!-- Stat Card 6 -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex justify-between items-start mb-4">
+            <div class="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center text-pink-600">
+                <i class="fa-solid fa-cake-candles text-xl"></i>
+            </div>
+            <div class="text-slate-400 text-xs font-bold px-2 py-1 rounded-lg">this week</div>
+        </div>
+        <h3 class="text-4xl font-bold mb-1">2</h3>
+        <p class="text-slate-500 text-sm">Upcoming Birthdays</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Chart Section -->
+    <div class="lg:col-span-2 bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h4 class="font-bold text-lg">Monthly Payroll Cost</h4>
+                <p class="text-slate-400 text-sm">Gross vs Net — last 6 months</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 text-sm text-slate-500">
+                    <span class="w-3 h-3 bg-blue-600 rounded-full"></span> Gross
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-500">
+                    <span class="w-3 h-3 bg-green-500 rounded-full"></span> Net
+                </div>
+            </div>
+        </div>
+        <div class="h-64 bg-slate-50 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-200">
+            <p class="text-slate-400 italic">Chart Visualization Placeholder (using Canvas or Chart.js)</p>
+        </div>
+    </div>
+
+    <!-- Team Distribution -->
+    <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+        <h4 class="font-bold text-lg mb-1">Team Distribution</h4>
+        <p class="text-slate-400 text-sm mb-8">Employees by department</p>
+        <div class="flex flex-col items-center">
+            <div class="w-48 h-48 rounded-full border-[16px] border-slate-100 flex items-center justify-center mb-8">
+                <div class="text-center">
+                    <p class="text-3xl font-bold">8</p>
+                    <p class="text-xs text-slate-400">Total</p>
+                </div>
+            </div>
+            <div class="w-full space-y-3">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2 text-sm">
+                        <span class="w-3 h-3 bg-blue-600 rounded-full"></span> Engineering
+                    </div>
+                    <span class="font-bold">4</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2 text-sm">
+                        <span class="w-3 h-3 bg-purple-500 rounded-full"></span> Marketing
+                    </div>
+                    <span class="font-bold">2</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2 text-sm">
+                        <span class="w-3 h-3 bg-pink-500 rounded-full"></span> Sales
+                    </div>
+                    <span class="font-bold">2</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/api/dashboard')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('stat-total-employees').textContent = data.total_employees;
+                document.getElementById('stat-on-leave').textContent = data.on_leave_today;
+                document.getElementById('stat-pending-requests').textContent = data.pending_requests;
+                document.getElementById('stat-monthly-payroll').textContent = '$' + data.monthly_payroll.toLocaleString();
+                document.getElementById('stat-avg-salary').textContent = '$' + data.avg_salary.toLocaleString();
+            });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-8">
+    <div>
+        <h3 class="text-2xl font-bold">Teams</h3>
+        <p class="text-slate-500">Organize your employees into departments and teams.</p>
+    </div>
+    <button onclick="openAddTeamModal()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors">
+        <i class="fa-solid fa-plus mr-2"></i> Create Team
+    </button>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="teams-grid">
+    <!-- Loaded via JS -->
+    <div class="p-12 text-center text-slate-400 col-span-full">Loading teams...</div>
+</div>
+
+<!-- Modal for adding team -->
+<div id="add-team-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl w-full max-w-md p-8">
+        <h3 class="text-2xl font-bold mb-6">Create New Team</h3>
+        <form id="add-team-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-bold mb-2">Team Name</label>
+                <input type="text" name="name" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="e.g. Engineering">
+            </div>
+            <div>
+                <label class="block text-sm font-bold mb-2">Description</label>
+                <textarea name="description" rows="3" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="What does this team do?"></textarea>
+            </div>
+            <div class="flex justify-end gap-4 mt-6">
+                <button type="button" onclick="closeAddTeamModal()" class="px-6 py-2 text-slate-500 font-bold">Cancel</button>
+                <button type="submit" class="bg-blue-600 text-white px-8 py-2 rounded-lg font-bold hover:bg-blue-700">Create Team</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function loadTeams() {
+        fetch('/api/employees/teams')
+            .then(res => res.json())
+            .then(data => {
+                const grid = document.getElementById('teams-grid');
+                if (data.length === 0) {
+                    grid.innerHTML = '<div class="p-12 text-center text-slate-400 col-span-full">No teams found</div>';
+                    return;
+                }
+                
+                grid.innerHTML = '';
+                data.forEach(team => {
+                    const card = `
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover-card">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                                    <i class="fa-solid fa-user-group text-xl"></i>
+                                </div>
+                                <button class="text-slate-300 hover:text-slate-600"><i class="fa-solid fa-ellipsis"></i></button>
+                            </div>
+                            <h4 class="text-xl font-bold mb-1">\${team.name}</h4>
+                            <p class="text-slate-500 text-sm mb-6">\${team.description || 'No description'}</p>
+                            <div class="flex items-center justify-between pt-4 border-t border-slate-50">
+                                <span class="text-xs font-bold text-slate-400 uppercase">Members</span>
+                                <div class="flex -space-x-2">
+                                    <div class="w-8 h-8 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-[10px] font-bold">JD</div>
+                                    <div class="w-8 h-8 rounded-full border-2 border-white bg-slate-300 flex items-center justify-center text-[10px] font-bold">AS</div>
+                                    <div class="w-8 h-8 rounded-full border-2 border-white bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold">+2</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    grid.innerHTML += card;
+                });
+            });
+    }
+
+    function openAddTeamModal() {
+        document.getElementById('add-team-modal').classList.remove('hidden');
+        document.getElementById('add-team-modal').classList.add('flex');
+    }
+
+    function closeAddTeamModal() {
+        document.getElementById('add-team-modal').classList.add('hidden');
+        document.getElementById('add-team-modal').classList.remove('flex');
+    }
+
+    document.getElementById('add-team-form').onsubmit = (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.from_ホームページ(formData.entries());
+        
+        fetch('/api/employees/teams', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        }).then(res => {
+            if (res.ok) {
+                closeAddTeamModal();
+                loadTeams();
+                e.target.reset();
+            }
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', loadTeams);
+</script>
+{% endblock %}
