@@ -1,502 +1,475 @@
-HR & Payroll Management System
+# HR & Payroll Management System
 
-Project Overview
+## Project Overview
 
-This project implements a small internal HR & Payroll tool designed to manage employee records, leave requests, and payroll processing. It addresses common challenges faced by growing teams that rely on manual processes, such as lost approvals and incorrect payroll calculations. The system is built with a Python Flask backend, PostgreSQL database, and a modern HTML/CSS/JavaScript frontend, adhering to the provided Figma design.
+The **HR & Payroll Management System** is a modern web-based application designed to streamline Human Resource and Payroll operations for growing organizations. It eliminates the challenges of managing employee information, leave requests, and payroll calculations through spreadsheets and messaging platforms by providing a centralized, automated solution.
 
-Table of Contents
+The system enables organizations to efficiently manage employee records, process leave requests through an approval workflow, and generate accurate monthly payrolls with statutory deductions and payslips. It is developed using a **Python Flask** backend, a **PostgreSQL** database, and a responsive **HTML, CSS, and JavaScript** frontend based on the provided Figma design.
 
-1.
-Features
+---
 
-2.
-Prioritization and Design Choices
+# Table of Contents
 
-3.
-Technical Stack
+- [Features](#features)
+- [Project Prioritization and Design Choices](#project-prioritization-and-design-choices)
+- [Technology Stack](#technology-stack)
+- [Database Schema](#database-schema)
+- [Business Logic](#business-logic)
+  - [Leave Management Rules](#leave-management-rules)
+  - [Payroll Formula](#payroll-formula)
+- [Frontend Overview](#frontend-overview)
+- [How to Run Locally](#how-to-run-locally)
+- [Testing](#testing)
+- [Future Improvements](#future-improvements)
 
-4.
-Database Schema
+---
 
-5.
-Business Logic
+# Features
 
-•
-Leave Management Rules
+The application consists of three primary modules.
 
-•
-Payroll Formula
+## 1. Employee Records
 
+The Employee Management module provides a centralized repository for all employee information.
 
+### Key Features
 
-6.
-Frontend Overview
+| Feature | Description |
+|----------|-------------|
+| Employee Profiles | Stores employee name, role, team, manager, salary, employment type, and start date. |
+| Organization Hierarchy | Displays reporting relationships between managers and employees. |
+| Employee Status | Employees can be deactivated instead of permanently deleted to preserve payroll history. |
 
-7.
-How to Run Locally
+---
 
-8.
-Testing
+## 2. Leave Management
 
-9.
-Future Improvements / Stretch Goals
+The Leave Management module automates the leave request and approval process.
 
-Features
+### Key Features
 
-1. Employee Records
+| Feature | Description |
+|----------|-------------|
+| Leave Requests | Employees can submit leave applications directly through the system. |
+| Approval Workflow | Managers can approve or reject leave requests. |
+| Notice Period Validation | Enforces minimum notice periods for annual leave requests. |
+| Team Coverage Validation | Prevents excessive leave requests that would leave teams understaffed. |
+| Payroll Integration | Approved unpaid leave is automatically considered during payroll generation. |
 
-•
-Employee Profiles: Stores essential information including name, role, team, manager, start date, salary, and employment type.
+---
 
-•
-Organizational View: Provides a simple hierarchy showing who reports to whom.
+## 3. Payroll Management
 
-•
-Deactivation, Not Deletion: Employees can be deactivated to preserve payroll history, rather than being permanently deleted.
+The Payroll module automatically generates employee payroll for each payroll period.
 
-2. Leave Management
+### Key Features
 
-•
-Request System: Employees can submit time-off requests.
+| Feature | Description |
+|----------|-------------|
+| Monthly Payslip Generation | Creates detailed payslips for every employee. |
+| Gross Pay Calculation | Calculates monthly salary including pro-rated salaries for mid-month joiners. |
+| Statutory Deductions | Applies predefined tax brackets and social security deductions. |
+| Edge Case Handling | Handles zero deductions, salary boundary cases, and unpaid leave adjustments. |
 
-•
-Approval Workflow: Managers can approve or reject leave requests.
+---
 
-•
-Intelligent Rules: Incorporates safeguards to prevent common issues:
+# Project Prioritization and Design Choices
 
-•
-Notice Period: Enforces a minimum notice period for certain leave types (e.g., annual leave).
+The project requirements intentionally provide a broad scope. Rather than implementing every feature superficially, the development focused on delivering robust business logic for the core HR operations.
 
-•
-Team Coverage: Ensures adequate team coverage by preventing too many team members from being on leave simultaneously.
+The following priorities guided the implementation.
 
-•
-Payroll Interaction: Unpaid leave automatically impacts payroll calculations.
+| Priority | Description |
+|----------|-------------|
+| Business Logic First | Payroll calculations and leave validation rules were prioritized over interface enhancements. |
+| Core Modules | Employee Records, Leave Management, and Payroll were implemented with complete workflows rather than simple CRUD functionality. |
+| Data Integrity | Soft deletion, relational database design, and validation rules ensure consistency of historical records. |
+| User Experience | The frontend closely follows the supplied Figma design while maintaining simplicity and responsiveness. |
 
+---
 
+# Technology Stack
 
-3. Payroll
+| Layer | Technology |
+|--------|------------|
+| Backend | Python 3.x |
+| Framework | Flask |
+| Database | PostgreSQL |
+| ORM | SQLAlchemy |
+| Database Migration | Flask-Migrate |
+| Frontend | HTML5 |
+| Styling | CSS3 / Tailwind CSS |
+| Client-side Scripting | Vanilla JavaScript |
+| Package Management | pip |
+| Dependencies | requirements/base.txt |
 
-•
-Monthly Payslip Generation: Generates detailed monthly payslips for each employee.
+---
 
-•
-Gross Pay Calculation: Includes pro-ration for mid-month joiners and deductions for unpaid leave.
+# Project Prioritization and Design Choices
 
-•
-Statutory Deductions: Applies simplified tax brackets and a flat social security scheme.
+Given the broad scope of the project, development focused on implementing robust business logic for the core HR functionalities rather than building every possible feature. The priority was to deliver a reliable system capable of managing employee records, processing leave requests, and generating accurate payroll while maintaining data integrity and a clean user experience.
 
-•
-Edge Case Handling: Manages scenarios like mid-month joiners and zero-deduction cases.
+The design decisions made throughout the project are summarized below.
 
-Prioritization and Design Choices
+| Design Choice | Description |
+|---------------|-------------|
+| **Backend First** | Core business logic, database relationships, and validation rules were prioritized to ensure the application's foundation is reliable and maintainable. |
+| **Quality over Quantity** | Rather than implementing numerous incomplete features, development focused on delivering complete Employee Management, Leave Management, and Payroll modules with realistic business rules. |
+| **Business Logic Driven** | The application emphasizes workflow automation, payroll calculations, leave validation, and organizational hierarchy instead of simple CRUD operations. |
+| **User Experience** | The frontend follows the supplied Figma design to provide a clean, responsive, and intuitive interface for administrators, managers, and employees. |
+| **Data Integrity** | Employees are deactivated instead of deleted, preserving payroll records and historical leave information. |
+| **Scalable Architecture** | The project follows a modular Flask architecture with separate Blueprints, models, services, and templates to simplify future maintenance and feature expansion. |
 
-Given the broad scope, the development prioritized implementing the core business logic for Employee Records, Leave Management, and Payroll with robust rules and calculations. The frontend focuses on presenting this data clearly and providing necessary controls, closely following the provided Figma design for the dashboard, employee, and leave pages.
+---
 
-•
-Backend First: Core business logic and data integrity were prioritized to ensure the system's foundation is sound.
+# Technology Stack
 
-•
-Key Modules Over All Modules: Instead of shallowly implementing all three modules, a deeper implementation of Employee Records, Leave Management, and Payroll was chosen to demonstrate real business logic.
-
-•
-User Experience (UX) for Core Flows: The frontend for the dashboard, employee listing, and leave request/approval flows were given attention to ensure usability and adherence to the Figma design.
-
-Technical Stack
-
-•
-Backend: Python 3.x with Flask framework.
-
-•
-Database: PostgreSQL, managed with SQLAlchemy ORM and Flask-Migrate for migrations.
-
-•
-Frontend: HTML5, CSS3 (using Tailwind CSS for utility-first styling), and Vanilla JavaScript for interactivity.
-
-•
-Dependencies: Managed via requirements/base.txt.
-
-Database Schema
-
-teams Table
-
-Column Name
-Type
-Constraints
-Description
-id
-INTEGER
-PRIMARY KEY
-Unique identifier for the team
-name
-VARCHAR(64)
-UNIQUE, NOT NULL
-Name of the team
-description
-VARCHAR(256)
-
-
-Brief description of the team
-
-
-
-
-employees Table
-
-Column Name
-Type
-Constraints
-Description
-id
-INTEGER
-PRIMARY KEY
-Unique identifier for the employee
-name
-VARCHAR(128)
-NOT NULL
-Full name of the employee
-email
-VARCHAR(120)
-UNIQUE, NOT NULL
-Employee's email address
-role
-VARCHAR(64)
-NOT NULL
-Employee's job role
-team_id
-INTEGER
-FOREIGN KEY (teams.id)
-ID of the team the employee belongs to
-manager_id
-INTEGER
-FOREIGN KEY (employees.id)
-ID of the employee's manager (self-referencing)
-start_date
-DATE
-NOT NULL
-Date when employment started
-salary
-NUMERIC(12,2)
-NOT NULL
-Monthly gross salary
-employment_type
-VARCHAR(32)
-NOT NULL
-Type of employment (e.g., Full-time, Part-time)
-status
-VARCHAR(16)
-DEFAULT 'Active'
-Employment status (Active, Inactive)
-
-
-
-
-leave_requests Table
-
-Column Name
-Type
-Constraints
-Description
-id
-INTEGER
-PRIMARY KEY
-Unique identifier for the leave request
-employee_id
-INTEGER
-FOREIGN KEY (employees.id), NOT NULL
-Employee who requested leave
-leave_type
-VARCHAR(32)
-NOT NULL
-Type of leave (e.g., Annual, Sick, Unpaid)
-start_date
-DATE
-NOT NULL
-Start date of the leave
-end_date
-DATE
-NOT NULL
-End date of the leave
-status
-VARCHAR(16)
-DEFAULT 'Pending'
-Status of the request (Pending, Approved, Rejected)
-reason
-TEXT
-
-
-Reason for the leave request
-approved_by
-INTEGER
-FOREIGN KEY (employees.id)
-Manager who approved the request
-created_at
-DATETIME
-DEFAULT UTC_NOW
-Timestamp of request creation
-
-
-
-
-payroll_records Table
-
-Column Name
-Type
-Constraints
-Description
-id
-INTEGER
-PRIMARY KEY
-Unique identifier for the payroll record
-employee_id
-INTEGER
-FOREIGN KEY (employees.id), NOT NULL
-Employee for whom payroll is generated
-period_start
-DATE
-NOT NULL
-Start date of the payroll period
-period_end
-DATE
-NOT NULL
-End date of the payroll period
-gross_pay
-NUMERIC(12,2)
-NOT NULL
-Gross pay for the period
-tax_deduction
-NUMERIC(12,2)
-NOT NULL
-Tax deducted
-social_security_deduction
-NUMERIC(12,2)
-NOT NULL
-Social security deducted
-unpaid_leave_deduction
-NUMERIC(12,2)
-NOT NULL
-Deduction for unpaid leave
-net_pay
-NUMERIC(12,2)
-NOT NULL
-Net pay after all deductions
-status
-VARCHAR(16)
-DEFAULT 'Draft'
-Status of the payroll (Draft, Finalized)
-generated_at
-DATETIME
-DEFAULT UTC_NOW
-Timestamp of record generation
-
-
-
-
-Business Logic
-
-Leave Management Rules
-
-•
-Notice Period: For 'Annual' leave types, a request must be submitted at least 7 days before the start_date. This prevents last-minute disruptions.
-
-•
-Team Coverage: To ensure operational continuity, no more than 50% of a team's active members can be on approved leave during any overlapping period. This prevents a team from becoming understaffed.
-
-•
-Unpaid Leave & Payroll: Any approved 'Unpaid' leave days within a payroll period are automatically factored into the payroll calculation, leading to a pro-rated deduction from the gross pay.
-
-Payroll Formula
-
-•
-Gross Pay: Calculated as Employee.salary (monthly base salary). For mid-month joiners, it's pro-rated based on the number of days worked in the month.
-
-•
-Daily Rate = Monthly Salary / Total Days in Month
-
-•
-Gross Pay (pro-rated) = Daily Rate * Days Worked
-
-
-
-•
-Unpaid Leave Deduction: If an employee has approved 'Unpaid' leave, the Daily Rate is multiplied by the number of unpaid leave days within the payroll period and deducted from the gross_pay.
-
-•
-Statutory Deductions:
-
-•
-Social Security: A flat 5% of the gross_pay.
-
-•
-Tax Brackets: A simplified progressive tax scheme is applied to the taxable_income (gross pay after social security deduction):
-
-•
-Up to $2000: 0%
-
-•
-$2001 - $5000: 10% on the amount over $2000
-
-•
-$5001 and above: 20% on the amount over $5000 (plus the 10% from the previous bracket)
-
-
-
-
-
-•
-Net Pay: Gross Pay - Social Security Deduction - Tax Deduction - Unpaid Leave Deduction.
-
-Frontend Overview
-
-The frontend is built using HTML, Tailwind CSS, and vanilla JavaScript to provide a responsive and interactive user interface, closely matching the Figma design. Key pages include:
-
-•
-Dashboard: Displays key HR metrics such as total employees, employees on leave today, pending leave requests, monthly payroll cost, and average salary. It also includes placeholders for monthly payroll cost charts and team distribution.
-
-•
-Employees: Lists all employees, allows adding new employees, and provides a basic organizational hierarchy view.
-
-•
-Teams: Displays a grid of teams and allows for the creation of new teams.
-
-•
-Leave Management: Shows pending leave requests, allows managers to approve/reject them, and enables employees to submit new leave requests. It also outlines the leave rules.
-
-•
-Payroll: Provides an interface to generate monthly payroll and view historical payroll records. It includes a modal for viewing detailed payslips.
-
-How to Run Locally
-
-Prerequisites
-
-•
-Python 3.8+
-
-•
-PostgreSQL
-
-•
-pip (Python package installer)
-
-1. Clone the Repository
-
-Bash
+The project utilizes modern web technologies to provide a scalable, responsive, and maintainable application.
 
+| Layer | Technology |
+|--------|------------|
+| **Programming Language** | Python 3.x |
+| **Backend Framework** | Flask |
+| **Database** | PostgreSQL |
+| **ORM** | SQLAlchemy |
+| **Database Migrations** | Flask-Migrate |
+| **Frontend** | HTML5 |
+| **Styling** | CSS3 (Tailwind CSS) |
+| **Client-side Scripting** | Vanilla JavaScript |
+| **Package Management** | pip |
+| **Dependency Management** | `requirements/base.txt` |
 
+---
+
+# Database Schema
+
+The database is designed using a relational structure to maintain data consistency while supporting employee management, leave processing, and payroll generation.
+
+---
+
+## Teams Table
+
+Stores information about organizational teams or departments.
+
+| Column | Data Type | Constraints | Description |
+|--------|-----------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY | Unique identifier for the team |
+| `name` | VARCHAR(64) | UNIQUE, NOT NULL | Name of the team |
+| `description` | VARCHAR(256) | - | Brief description of the team |
+
+---
+
+## Employees Table
+
+Stores employee information and reporting relationships.
+
+| Column | Data Type | Constraints | Description |
+|--------|-----------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY | Unique identifier for the employee |
+| `name` | VARCHAR(128) | NOT NULL | Full name of the employee |
+| `email` | VARCHAR(120) | UNIQUE, NOT NULL | Employee email address |
+| `role` | VARCHAR(64) | NOT NULL | Employee job role |
+| `team_id` | INTEGER | FOREIGN KEY (`teams.id`) | Team the employee belongs to |
+| `manager_id` | INTEGER | FOREIGN KEY (`employees.id`) | Employee's manager (self-reference) |
+| `start_date` | DATE | NOT NULL | Employment start date |
+| `salary` | NUMERIC(12,2) | NOT NULL | Monthly gross salary |
+| `employment_type` | VARCHAR(32) | NOT NULL | Employment type (Full-time, Part-time, Contract, etc.) |
+| `status` | VARCHAR(16) | DEFAULT `'Active'` | Employment status (Active or Inactive) |
+
+---
+
+## Leave Requests Table
+
+Stores all employee leave applications and approval information.
+
+| Column | Data Type | Constraints | Description |
+|--------|-----------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY | Unique identifier for the leave request |
+| `employee_id` | INTEGER | FOREIGN KEY (`employees.id`), NOT NULL | Employee submitting the leave request |
+| `leave_type` | VARCHAR(32) | NOT NULL | Type of leave (Annual, Sick, Unpaid, etc.) |
+| `start_date` | DATE | NOT NULL | Leave start date |
+| `end_date` | DATE | NOT NULL | Leave end date |
+| `status` | VARCHAR(16) | DEFAULT `'Pending'` | Request status (Pending, Approved, Rejected) |
+| `reason` | TEXT | - | Reason provided by the employee |
+| `approved_by` | INTEGER | FOREIGN KEY (`employees.id`) | Manager responsible for approval |
+| `created_at` | DATETIME | DEFAULT `UTC_NOW` | Date and time the request was submitted |
+
+---
+
+## Payroll Records Table
+
+Stores payroll information generated for each employee during a specific payroll period.
+
+| Column | Data Type | Constraints | Description |
+|--------|-----------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY | Unique identifier for the payroll record |
+| `employee_id` | INTEGER | FOREIGN KEY (`employees.id`), NOT NULL | Employee for whom payroll is generated |
+| `period_start` | DATE | NOT NULL | Start date of the payroll period |
+| `period_end` | DATE | NOT NULL | End date of the payroll period |
+| `gross_pay` | NUMERIC(12,2) | NOT NULL | Employee's gross salary before deductions |
+| `tax_deduction` | NUMERIC(12,2) | NOT NULL | Total tax deducted |
+| `social_security_deduction` | NUMERIC(12,2) | NOT NULL | Social security contribution deducted |
+| `unpaid_leave_deduction` | NUMERIC(12,2) | NOT NULL | Deduction resulting from approved unpaid leave |
+| `net_pay` | NUMERIC(12,2) | NOT NULL | Final salary after all deductions |
+| `status` | VARCHAR(16) | DEFAULT `'Draft'` | Payroll status (`Draft`, `Finalized`) |
+| `generated_at` | DATETIME | DEFAULT `UTC_NOW` | Date and time the payroll record was generated |
+
+---
+
+# Business Logic
+
+The application implements business rules that closely reflect real-world Human Resource and Payroll workflows instead of relying solely on basic CRUD operations.
+
+---
+
+## Leave Management Rules
+
+The Leave Management module enforces several validation rules to ensure fairness, maintain operational continuity, and integrate seamlessly with payroll processing.
+
+| Rule | Description |
+|------|-------------|
+| **Minimum Notice Period** | Annual leave requests must be submitted at least **7 days** before the requested start date to reduce last-minute disruptions. |
+| **Team Coverage Validation** | No more than **50%** of active employees within the same team may have overlapping approved leave to prevent understaffing. |
+| **Leave Overlap Prevention** | Employees cannot submit leave requests that overlap with existing approved or pending leave requests. |
+| **Payroll Integration** | Approved unpaid leave is automatically considered during payroll generation, reducing the employee's gross salary proportionally. |
+
+---
+
+## Payroll Formula
+
+Payroll calculations are performed automatically for each payroll period while considering employee start dates, unpaid leave, and statutory deductions.
+
+### 1. Gross Pay
+
+The employee's monthly salary serves as the base gross pay.
+
+For employees who join during the payroll period, salary is automatically prorated based on the number of days worked.
+
+**Formula**
+
+```text
+Daily Rate = Monthly Salary ÷ Total Days in Month
+
+Gross Pay = Daily Rate × Days Worked
+```
+
+---
+
+### 2. Unpaid Leave Deduction
+
+Approved unpaid leave reduces the employee's gross salary.
+
+**Formula**
+
+```text
+Unpaid Leave Deduction = Daily Rate × Number of Unpaid Leave Days
+```
+
+---
+
+### 3. Social Security Deduction
+
+A fixed social security contribution of **5%** is deducted from the employee's gross salary.
+
+**Formula**
+
+```text
+Social Security = Gross Pay × 5%
+```
+
+---
+
+### 4. Tax Calculation
+
+A simplified progressive tax system is applied after calculating the taxable income.
+
+| Taxable Income | Tax Rate |
+|---------------|----------|
+| Up to **$2,000** | 0% |
+| **$2,001 – $5,000** | 10% of the amount above $2,000 |
+| Above **$5,000** | 20% of the amount above $5,000, plus the tax from the previous bracket |
+
+---
+
+### 5. Net Pay
+
+The employee's final salary is calculated after deducting social security, tax, and unpaid leave deductions.
+
+**Formula**
+
+```text
+Net Pay =
+Gross Pay
+− Social Security Deduction
+− Tax Deduction
+− Unpaid Leave Deduction
+```
+
+---
+
+# Frontend Overview
+
+The frontend is developed using **HTML5**, **Tailwind CSS**, and **Vanilla JavaScript** to deliver a responsive and user-friendly interface that closely follows the provided Figma design.
+
+The application is organized into multiple pages, each focusing on a specific HR function.
+
+| Page | Description |
+|------|-------------|
+| **Dashboard** | Displays key HR metrics including total employees, employees currently on leave, pending leave approvals, monthly payroll summary, average salary, and visual charts for payroll and team distribution. |
+| **Employees** | Lists all employees, supports adding and editing employee records, and provides a simple organizational hierarchy showing reporting relationships. |
+| **Teams** | Displays all organizational teams and allows administrators to create and manage teams. |
+| **Leave Management** | Enables employees to submit leave requests while allowing managers to approve or reject pending requests. The page also displays leave balances and company leave policies. |
+| **Payroll** | Allows payroll administrators to generate monthly payroll, review payroll history, and view detailed employee payslips before finalization. |
+
+---
+
+# How to Run Locally
+
+## Prerequisites
+
+Before running the application, ensure the following software is installed:
+
+| Requirement | Version |
+|-------------|---------|
+| Python | 3.8 or later |
+| PostgreSQL | Latest Stable Version |
+| pip | Latest Version |
+
+---
+
+## 1. Clone the Repository
+
+```bash
 git clone <repository_url>
+
 cd hr_payroll_system
+```
 
+---
 
+## 2. Create and Activate a Virtual Environment
 
-2. Set up a Virtual Environment
+Creating a virtual environment keeps project dependencies isolated.
 
-It's recommended to use a virtual environment to manage project dependencies.
+### Linux / macOS
 
-Bash
-
-
+```bash
 python3 -m venv venv
-source venv/bin/activate  # On Windows: .\venv\Scripts\activate
 
+source venv/bin/activate
+```
 
+### Windows
 
-3. Install Dependencies
+```powershell
+python -m venv venv
 
-Bash
+venv\Scripts\activate
+```
 
+---
 
+## 3. Install Project Dependencies
+
+```bash
 pip install -r requirements/base.txt
+```
 
+---
 
+## 4. Configure the Database
 
-4. Database Setup
+### Create the PostgreSQL Database
 
-a. Create PostgreSQL Database
-
-Ensure you have a PostgreSQL server running. Create a database named hr_payroll (or as configured in config.py).
-
-SQL
-
-
+```sql
 CREATE DATABASE hr_payroll;
+```
 
+---
 
+### Configure Environment Variables
 
-b. Environment Variables
+Create a `.env` file in the project root.
 
-Create a .env file in the root directory of the project with your database connection string and a secret key:
+```env
+DATABASE_URL=postgresql://your_username:your_password@localhost:5432/hr_payroll
 
-Plain Text
+SECRET_KEY=your_super_secret_key
+```
 
+Replace `your_username` and `your_password` with your PostgreSQL credentials.
 
-DATABASE_URL="postgresql://your_user:your_password@localhost:5432/hr_payroll"
-SECRET_KEY="your_super_secret_key"
+---
 
+### Apply Database Migrations
 
+Initialize and apply all database migrations.
 
-Replace your_user and your_password with your PostgreSQL credentials.
-
-c. Run Migrations
-
-Initialize and apply database migrations:
-
-Bash
-
-
+```bash
 flask db init
+
 flask db migrate -m "Initial migration"
+
 flask db upgrade
+```
 
+---
 
+## 5. Run the Application
 
-5. Run the Flask Application
+Start the Flask development server.
 
-Bash
-
-
+```bash
 python run.py
+```
 
+After the server starts, open your browser and navigate to:
 
+```text
+http://127.0.0.1:5000/
+```
 
-The application will be accessible at http://127.0.0.1:5000/.
+---
 
-Testing
+# Testing
 
-Unit tests for core business logic, including payroll calculations and leave management rules, are located in the tests/ directory. To run tests:
+The project includes automated unit tests that validate the application's core business logic.
 
-Bash
+The tests focus on:
 
+| Test Area | Description |
+|-----------|-------------|
+| Payroll Calculations | Verifies gross pay, deductions, and net pay calculations. |
+| Leave Validation | Ensures leave requests follow business rules and validation requirements. |
+| Team Coverage | Confirms staffing thresholds are respected during leave approval. |
+| Tax Calculations | Validates all tax bracket calculations. |
+| Payroll Generation | Ensures payroll records and payslips are generated correctly. |
 
+Run the complete test suite using:
+
+```bash
 pytest
+```
 
+---
 
+# Future Improvements
 
-Future Improvements / Stretch Goals
+The following enhancements are planned for future versions of the system.
 
-Given more time, the following improvements would enhance the system:
+| Enhancement | Description |
+|-------------|-------------|
+| **Authentication & Authorization** | Implement Flask-Login with Role-Based Access Control (RBAC) for administrators, managers, and employees. |
+| **Advanced Reporting** | Generate payroll analytics, leave trends, and departmental reports with downloadable exports. |
+| **Notifications** | Add email and in-app notifications for leave approvals, payroll generation, and important HR events. |
+| **Interactive Dashboard** | Integrate Chart.js to provide dynamic payroll, employee, and leave analytics. |
+| **Employee Self-Service Portal** | Allow employees to view payslips, monitor leave balances, and update personal information. |
+| **Administration Panel** | Provide a centralized interface for managing users, tax settings, leave policies, and company configuration. |
+| **API Documentation** | Generate OpenAPI (Swagger) documentation for all REST API endpoints. |
+| **Docker Support** | Containerize the application using Docker and Docker Compose for simplified deployment and consistent development environments. |
 
-•
-Authentication and Authorization: Implement a proper user authentication system (e.g., Flask-Login ) with role-based access control for managers and employees.
+---
 
-•
-Detailed Reporting: Expand the reporting module with more comprehensive analytics and customizable reports (e.g., leave trends, payroll distribution by team).
+# License
 
-•
-Notifications: Implement real-time notifications for leave approvals/rejections, upcoming birthdays, and payroll generation.
-
-•
-UI Refinements: Further refine the frontend to exactly match all aspects of the Figma design, including interactive charts (e.g., using Chart.js or D3.js) and more polished empty/loading states.
-
-•
-Employee Self-Service Portal: Allow employees to view their own payslips, leave balances, and update personal information.
-
-•
-Admin Panel: A dedicated admin interface for managing system settings, user accounts, and global configurations.
-
-•
-API Documentation: Generate OpenAPI/Swagger documentation for the backend API endpoints.
-
-•
-Dockerization: Provide Docker support for easier deployment and environment consistency.
-
+This project was developed as part of a technical assessment to demonstrate practical software engineering skills in **Human Resource Management**, **Payroll Processing**, **Business Rule Implementation**, and **Full-Stack Web Development** using **Flask**, **PostgreSQL**, and **modern frontend technologies**.
