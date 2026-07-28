@@ -356,7 +356,8 @@ Creating a virtual environment keeps project dependencies isolated.
 ```bash
 python3 -m venv venv
 
-source venv/bin/activate
+Use if there are problems installing a venv
+source myenv/bin/activate
 ```
 
 ### Windows
@@ -390,13 +391,6 @@ Ensure you have the following installed:
 - PostgreSQL 14 or later
 - Python 3.11+
 - Git
-
-## Clone the Repository
-
-```bash
-git clone https://github.com/ombati003/hr-payroll-system.git
-cd hr-payroll-system
-```
 
 ### Create the PostgreSQL Database
 
