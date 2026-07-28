@@ -394,7 +394,7 @@ Ensure you have the following installed:
 ## Clone the Repository
 
 ```bash
-git clone https://github.com/<your-username>/hr-payroll-system.git
+git clone https://github.com/ombati003/hr-payroll-system.git
 cd hr-payroll-system
 ```
 
