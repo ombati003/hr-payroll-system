@@ -379,6 +379,25 @@ pip install -r requirements/base.txt
 
 ## 4. Configure the Database
 
+# Database Setup (PostgreSQL)
+
+This project uses **PostgreSQL** as the primary database.
+
+## Prerequisites
+
+Ensure you have the following installed:
+
+- PostgreSQL 14 or later
+- Python 3.11+
+- Git
+
+## Clone the Repository
+
+```bash
+git clone https://github.com/<your-username>/hr-payroll-system.git
+cd hr-payroll-system
+```
+
 ### Create the PostgreSQL Database
 
 ```sql
@@ -389,7 +408,7 @@ CREATE DATABASE hr_payroll;
 
 ### Configure Environment Variables
 
-Create a `.env` file in the project root.
+In a production environment, create a `.env` file in the project root.
 
 ```env
 DATABASE_URL=postgresql://your_username:your_password@localhost:5432/hr_payroll
@@ -401,6 +420,29 @@ Replace `your_username` and `your_password` with your PostgreSQL credentials.
 
 ---
 
+## Restore the Database
+
+The repository contains a PostgreSQL SQL dump named:
+
+```
+hr_payroll_db.sql
+```
+
+Restore the database using:
+
+```bash
+psql -U postgres -d hr_payroll -f hr_payroll_db.sql
+```
+
+Alternatively:
+
+```bash
+psql -U postgres hr_payroll < hr_payroll_db.sql
+```
+
+If prompted, enter your PostgreSQL password.
+
+## Configure Environment Variables
 ### Apply Database Migrations
 
 Initialize and apply all database migrations.

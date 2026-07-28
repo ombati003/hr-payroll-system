@@ -100,8 +100,8 @@
                 </div>
             </div>
         </div>
-        <div class="h-64 bg-slate-50 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-200">
-            <p class="text-slate-400 italic">Chart Visualization Placeholder (using Canvas or Chart.js)</p>
+        <div class="h-64">
+            <canvas id="payrollChart"></canvas>
         </div>
     </div>
 
@@ -142,8 +142,10 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // Fetch stats
         fetch('/api/dashboard')
             .then(res => res.json())
             .then(data => {
@@ -153,6 +155,49 @@
                 document.getElementById('stat-monthly-payroll').textContent = '$' + data.monthly_payroll.toLocaleString();
                 document.getElementById('stat-avg-salary').textContent = '$' + data.avg_salary.toLocaleString();
             });
+
+        // Initialize Chart
+        const ctx = document.getElementById('payrollChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                datasets: [{
+                    label: 'Gross Pay',
+                    data: [65000, 68000, 72000, 70000, 75000, 77667],
+                    borderColor: '#2563EB',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Net Pay',
+                    data: [52000, 54000, 58000, 56000, 60000, 62000],
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#F1F5F9' },
+                        ticks: {
+                            callback: value => '$' + (value / 1000) + 'k'
+                        }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
     });
 </script>
 {% endblock %}
