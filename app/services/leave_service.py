@@ -27,7 +27,7 @@ class LeaveService:
             total_members = len(team_members)
             
             # Check how many team members are already on leave during this period
-            overlapping_leaves = LeaveRequest.query.join(Employee).filter(
+            overlapping_leaves = LeaveRequest.query.join(LeaveRequest.employee).filter(
                 Employee.team_id == employee.team_id,
                 LeaveRequest.status == 'Approved',
                 LeaveRequest.start_date <= end_dt,

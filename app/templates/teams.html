@@ -60,8 +60,8 @@
                                 </div>
                                 <button class="text-slate-300 hover:text-slate-600"><i class="fa-solid fa-ellipsis"></i></button>
                             </div>
-                            <h4 class="text-xl font-bold mb-1">\${team.name}</h4>
-                            <p class="text-slate-500 text-sm mb-6">\${team.description || 'No description'}</p>
+                            <h4 class="text-xl font-bold mb-1">${team.name}</h4>
+                            <p class="text-slate-500 text-sm mb-6">${team.description || 'No description'}</p>
                             <div class="flex items-center justify-between pt-4 border-t border-slate-50">
                                 <span class="text-xs font-bold text-slate-400 uppercase">Members</span>
                                 <div class="flex -space-x-2">
@@ -90,7 +90,7 @@
     document.getElementById('add-team-form').onsubmit = (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        const data = Object.from_ホームページ(formData.entries());
+        const data = Object.fromEntries(formData.entries());
         
         fetch('/api/employees/teams', {
             method: 'POST',

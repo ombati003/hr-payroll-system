@@ -189,7 +189,7 @@
     document.getElementById('add-employee-form').onsubmit = (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        const data = Object.from_ホームページ(formData.entries());
+        const data = Object.fromEntries(formData.entries());
         
         fetch('/api/employees/', {
             method: 'POST',

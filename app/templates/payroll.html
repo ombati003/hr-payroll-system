@@ -63,8 +63,7 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
-<script>
+<!-- <script>
     function loadPayroll() {
         fetch('/api/payroll/')
             .then(res => res.json())
@@ -193,5 +192,359 @@
     }
 
     document.addEventListener('DOMContentLoaded', loadPayroll);
+</script> -->
+
+
+{% block scripts %}
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadPayroll();
+});
+
+function formatMoney(value){
+    return Number(value || 0).toLocaleString(undefined,{
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+    });
+}
+
+function loadPayroll(){
+
+    const tbody = document.getElementById("payroll-table-body");
+
+    tbody.innerHTML = `
+    <tr>
+        <td colspan="6" class="text-center p-8 text-slate-400">
+            Loading payroll records...
+        </td>
+    </tr>`;
+
+    fetch("/api/payroll/")
+    .then(response=>{
+
+        if(!response.ok){
+            throw new Error("Unable to load payroll records.");
+        }
+
+        return response.json();
+
+    })
+    .then(records=>{
+
+        console.log(records);
+
+        tbody.innerHTML="";
+
+        if(!Array.isArray(records) || records.length===0){
+
+            tbody.innerHTML=`
+            <tr>
+                <td colspan="6" class="text-center p-10 text-slate-400">
+                    No payroll records found.
+                </td>
+            </tr>`;
+
+            return;
+        }
+
+        records.forEach(record=>{
+
+            const gross = Number(record.gross_pay);
+            const tax = Number(record.tax_deduction);
+            const ss = Number(record.social_security_deduction);
+            const unpaid = Number(record.unpaid_leave_deduction);
+
+            const deductions = tax + ss + unpaid;
+
+            tbody.innerHTML += `
+            <tr class="hover:bg-slate-50">
+
+                <td class="px-6 py-4">
+                    <div class="font-semibold">
+                        ${record.employee_name}
+                    </div>
+                </td>
+
+                <td class="px-6 py-4">
+                    KES ${formatMoney(gross)}
+                </td>
+
+                <td class="px-6 py-4 text-red-600">
+                    -KES ${formatMoney(deductions)}
+                </td>
+
+                <td class="px-6 py-4 font-bold text-green-600">
+                    KES ${formatMoney(record.net_pay)}
+                </td>
+
+                <td class="px-6 py-4">
+
+                    <span class="px-3 py-1 rounded-full text-xs font-bold
+                    ${record.status==="Finalized"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-orange-100 text-orange-700"}">
+
+                        ${record.status}
+
+                    </span>
+
+                </td>
+
+                <td class="px-6 py-4 text-right">
+
+                    <button
+                        onclick="viewPayslip(${record.id})"
+                        class="text-blue-600 hover:underline mr-3">
+
+                        View
+
+                    </button>
+
+                    ${
+                        record.status==="Draft"
+
+                        ?
+
+                        `<button
+                            onclick="finalizePayroll(${record.id})"
+                            class="bg-slate-900 text-white px-3 py-1 rounded-lg text-xs">
+
+                            Finalize
+
+                        </button>`
+
+                        :
+
+                        ""
+                    }
+
+                </td>
+
+            </tr>
+            `;
+
+        });
+
+    })
+
+    .catch(error=>{
+
+        console.error(error);
+
+        tbody.innerHTML=`
+        <tr>
+            <td colspan="6" class="text-center text-red-600 p-10">
+                Failed to load payroll records.
+            </td>
+        </tr>`;
+
+    });
+
+}
+
+function generatePayroll(){
+
+    const month=document.getElementById("payroll-month").value;
+    const year=document.getElementById("payroll-year").value;
+
+    fetch("/api/payroll/generate",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+
+            month:Number(month),
+            year:Number(year)
+
+        })
+
+    })
+
+    .then(res=>res.json())
+
+    .then(data=>{
+
+        alert(data.message || "Payroll generated successfully.");
+
+        loadPayroll();
+
+    })
+
+    .catch(err=>{
+
+        console.error(err);
+
+        alert("Failed to generate payroll.");
+
+    });
+
+}
+
+function finalizePayroll(id){
+
+    fetch(`/api/payroll/${id}/finalize`,{
+
+        method:"POST"
+
+    })
+
+    .then(res=>{
+
+        if(!res.ok){
+
+            throw new Error();
+
+        }
+
+        loadPayroll();
+
+    })
+
+    .catch(()=>{
+
+        alert("Unable to finalize payroll.");
+
+    });
+
+}
+
+function viewPayslip(id){
+
+    fetch(`/api/payroll/${id}`)
+
+    .then(res=>{
+
+        if(!res.ok){
+
+            throw new Error();
+
+        }
+
+        return res.json();
+
+    })
+
+    .then(record=>{
+
+        document.getElementById("payslip-content").innerHTML=`
+
+        <div class="flex justify-between mb-8">
+
+            <div>
+
+                <h2 class="text-3xl font-bold">
+                    PAYSLIP
+                </h2>
+
+                <p class="text-slate-500">
+
+                    ${record.period_start} to ${record.period_end}
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="space-y-3">
+
+            <div class="flex justify-between">
+
+                <span>Employee</span>
+
+                <strong>${record.employee_name}</strong>
+
+            </div>
+
+            <div class="flex justify-between">
+
+                <span>Gross Pay</span>
+
+                <strong>KES ${formatMoney(record.gross_pay)}</strong>
+
+            </div>
+
+            <div class="flex justify-between text-red-600">
+
+                <span>Tax</span>
+
+                <strong>-KES ${formatMoney(record.tax_deduction)}</strong>
+
+            </div>
+
+            <div class="flex justify-between text-red-600">
+
+                <span>Social Security</span>
+
+                <strong>-KES ${formatMoney(record.social_security_deduction)}</strong>
+
+            </div>
+
+            <div class="flex justify-between text-red-600">
+
+                <span>Unpaid Leave</span>
+
+                <strong>-KES ${formatMoney(record.unpaid_leave_deduction)}</strong>
+
+            </div>
+
+            <hr>
+
+            <div class="flex justify-between text-xl font-bold text-green-600">
+
+                <span>NET PAY</span>
+
+                <span>KES ${formatMoney(record.net_pay)}</span>
+
+            </div>
+
+        </div>
+
+        <div class="mt-8 flex justify-end gap-3">
+
+            <button
+                onclick="closePayslip()"
+                class="px-5 py-2">
+
+                Close
+
+            </button>
+
+            <button
+                onclick="window.print()"
+                class="bg-blue-600 text-white px-5 py-2 rounded">
+
+                Print
+
+            </button>
+
+        </div>
+        `;
+
+        document.getElementById("payslip-modal").classList.remove("hidden");
+        document.getElementById("payslip-modal").classList.add("flex");
+
+    })
+
+    .catch(()=>{
+
+        alert("Unable to load payslip.");
+
+    });
+
+}
+
+function closePayslip(){
+
+    document.getElementById("payslip-modal").classList.add("hidden");
+    document.getElementById("payslip-modal").classList.remove("flex");
+
+}
+
 </script>
 {% endblock %}
