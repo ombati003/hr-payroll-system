@@ -340,7 +340,7 @@ Before running the application, ensure the following software is installed:
 ## 1. Clone the Repository
 
 ```bash
-git clone <repository_url>
+git clone https://github.com/ombati003/hr-payroll-system
 
 cd hr_payroll_system
 ```
